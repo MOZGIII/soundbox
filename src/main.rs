@@ -33,11 +33,13 @@ fn main() -> Result<(), Box<std::error::Error>> {
     let working = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(true));
     let working_consumer = working.clone();
 
-    let mut io_buffer = std::collections::VecDeque::<f32>::with_capacity(30_000_000);
+    let io_buffer = std::collections::VecDeque::<f32>::with_capacity(30_000_000);
+    let mu = std::sync::Mutex::new(io_buffer);
 
     std::thread::spawn(move || {
         event_loop.run(move |_stream_id, stream_data| {
             if !working_consumer.load(std::sync::atomic::Ordering::Relaxed) {
+                let io_buffer = mu.lock().unwrap();
                 dbg!(io_buffer.len());
                 return;
             }
@@ -46,12 +48,14 @@ fn main() -> Result<(), Box<std::error::Error>> {
                 cpal::StreamData::Input {
                     buffer: cpal::UnknownTypeInputBuffer::F32(buffer),
                 } => {
+                    let mut io_buffer = mu.lock().unwrap();
                     io_buffer.extend(buffer.into_iter());
                 }
 
                 cpal::StreamData::Output {
                     buffer: cpal::UnknownTypeOutputBuffer::F32(mut buffer),
                 } => {
+                    let mut io_buffer = mu.lock().unwrap();
                     for elem in buffer.iter_mut() {
                         *elem = io_buffer.pop_front().unwrap_or(0.0) * gain;
                     }

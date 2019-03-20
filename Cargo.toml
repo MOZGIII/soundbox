@@ -5,4 +5,4 @@ authors = ["MOZGIII <mike-n@narod.ru>"]
 edition = "2018"
 
 [dependencies]
-cpal = "0.8.2"
+cpal = { path = "cpal" }

@@ -1,5 +1,3 @@
-extern crate cpal;
-
 mod none_option;
 use none_option::NoneOption;
 

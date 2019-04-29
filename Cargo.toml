@@ -5,4 +5,4 @@ authors = ["MOZGIII <mike-n@narod.ru>"]
 edition = "2018"
 
 [dependencies]
-cpal = "0.8.2"
+cpal = { git = "https://github.com/tomaka/cpal.git", rev = "0354548426f7b4c48392cae9876a3e77ea5c1c40" }
